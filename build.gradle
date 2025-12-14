@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'seungjub270'
+version = '0.0.1-SNAPSHOT'
+description = 'WhatShouldIDo'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web & Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-web' // webmvc 대신 web 스타터 사용 권장
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // JPA & Database
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+
+    // 💡 MySQL 설정 (수정됨)
+    runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
+
+    // Lombok & Tools
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'jakarta.annotation:jakarta.annotation-api'
+
+    // AI
+    implementation 'dev.langchain4j:langchain4j-ollama:0.35.0'
+    implementation 'dev.langchain4j:langchain4j:0.35.0'
+
+    // Test (존재하지 않는 라이브러리 제거하고 통합 스타터로 변경)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
