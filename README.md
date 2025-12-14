@@ -32,6 +32,7 @@
 | ✅ | **컬러 테라피**         | **물결치는 3차원 구체를 바라보며 명상하기**<br>자극이 넘치는 인터넷에서 잠시 누리는 테라피       | `Three.js` `GLSL`                    |
 | ✅ | **로또 번호**          | **클릭 한 번에 노려보는 인생 역전*<br>LinkedHashSet을 통해 안정적으로 동작하는 로또 추첨기 | `LinkedHashSet`                      |
 | ✅ | **AI 챗봇**          | **로컬에서 무료로 동작하는 ai!**<br>열심히 사용해서 chatgpt에게 경제보복 이룩하기        | `AJAX` `Ollama`                      |
+| 🚧 | **여행지 추천**         | *상황, 성형등을 입력하면 자동으로 추천되는 당신만의 힐링 스팟*                         | *TBD*                                |
 | 🚧 | **(Next Feature)** | *여기에 새로운 아이디어를 적으세요*                                         | *TBD*                                |
 | 🗓️ | **(Planned)**      | *추후 구현 예정 기능*                                                | *TBD*                                |
 
@@ -44,7 +45,7 @@
 ### Backend
 - **Core**: Java 17, Spring Boot 3.x
 - **ORM**: Spring Data JPA, Hibernate
-- **DB**: MySQL (Prod), H2 (Dev)
+- **DB**: MySQL 
 
 ### Frontend
 - **Engine**: Thymeleaf
@@ -58,10 +59,10 @@
 
 ## 📸 Screenshots
 
-| Movie Select | Analysis Result |
-| :---: | :---: |
+|    Analysis     |   Screenshots   |
+|:---------------:|:---------------:|
 | *(스크린샷 이미지 링크)* | *(스크린샷 이미지 링크)* |
-| *영화 선택 화면* | *추천 결과 화면* |
+|   *영화 선택 화면*    |   *추천 결과 화면*    |
 
 <br>
 
