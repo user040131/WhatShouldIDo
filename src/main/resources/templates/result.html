@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 추천 결과</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #e50914; /* 넷플릭스 레드 */
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-sub: #666;
+            --shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 상단 네비게이션 */
+        .nav-bar {
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .home-btn {
+            font-size: 1.5rem;
+            color: #333;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .home-btn:hover { color: var(--primary); transform: scale(1.1); }
+
+        /* 메인 컨테이너 */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            padding-bottom: 50px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1.page-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            font-weight: 900;
+        }
+
+        h1.page-title span { color: var(--primary); }
+
+        /* 1위 영화 (Best Pick) 섹션 */
+        .best-pick-section {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 40px;
+            position: relative;
+            /* 애니메이션 */
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4);
+            z-index: 10;
+        }
+
+        .poster-area {
+            flex: 1;
+            background-color: #eee;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            color: #ccc;
+        }
+
+        .info-area {
+            flex: 1.5;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-area h2 {
+            font-size: 2.2rem;
+            margin: 0 0 15px 0;
+        }
+
+        .info-area p {
+            font-size: 1rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .btn-action {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            width: fit-content;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+        }
+        .btn-action:hover {
+            background-color: #b20710;
+            transform: translateY(-3px);
+        }
+
+        /* 나머지 추천 (Grid) */
+        .sub-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            padding-left: 10px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .mini-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            /* 순차 등장 애니메이션 딜레이 */
+            opacity: 0;
+            animation: slideUp 0.6s forwards;
+        }
+
+        /* 딜레이 설정 (nth-child 이용) */
+        .mini-card:nth-child(1) { animation-delay: 0.2s; }
+        .mini-card:nth-child(2) { animation-delay: 0.3s; }
+        .mini-card:nth-child(3) { animation-delay: 0.4s; }
+        .mini-card:nth-child(4) { animation-delay: 0.5s; }
+
+        .mini-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .mini-poster {
+            width: 100%;
+            height: 150px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ddd;
+            font-size: 2rem;
+        }
+
+        .mini-card h3 {
+            font-size: 1.1rem;
+            margin: 0 0 10px 0;
+            word-break: keep-all;
+        }
+
+        /* 애니메이션 키프레임 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .best-pick-section {
+                flex-direction: column;
+            }
+            .poster-area {
+                height: 200px;
+                min-height: auto;
+            }
+            .info-area {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-bar">
+    <a href="/" class="home-btn" title="메인으로"><i class="fas fa-home"></i></a>
+</div>
+
+<div class="container">
+    <h1 class="page-title">분석이 완료되었습니다! <span>Top 5</span></h1>
+
+    <div class="best-pick-section">
+        <div class="badge">AI Best Pick 👑</div>
+
+        <div class="poster-area">
+            <img th:if="${posterUrl != null}"
+                 th:src="${posterUrl}"
+                 alt="영화 포스터"
+                 style="width:100%; height:100%; object-fit:cover;">
+
+            <i th:unless="${posterUrl != null}" class="fas fa-film"></i>
+        </div>
+
+        <div class="info-area">
+            <h2 th:text="${bestMovie.title}">영화 제목</h2>
+            <p th:text="${overview}">
+                이 영화는 사용자의 취향 패턴과 가장 일치하는 작품입니다.
+                줄거리 정보가 있다면 여기에 표시됩니다.
+            </p>
+            <a href="#" class="btn-action">자세히 보기</a>
+        </div>
+    </div>
+
+    <div th:if="${!subMovies.isEmpty()}">
+        <div class="sub-title">이 영화들도 추천해요</div>
+
+        <div class="grid-container">
+            <div th:each="movie, iterStat : ${subMovies}" class="mini-card">
+
+            <div class="mini-poster">
+                <img th:if="${subPosters[iterStat.index] != null}"
+                     th:src="${subPosters[iterStat.index]}"
+                     alt="포스터"
+                     style="width:100%; height:100%; object-fit:cover; border-radius:10px;">
+
+                <i th:unless="${subPosters[iterStat.index] != null}"
+                   class="fas fa-video"
+                   style="font-size: 24px; color: #ccc;"></i>
+            </div>
+
+            <h3 th:text="${movie.title}" style="text-align: center; margin-top: 5px; font-size: 1rem;">영화 제목</h3>
+
+        </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

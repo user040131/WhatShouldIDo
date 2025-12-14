@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatShouldIDo Chatbot</title>
+
+    <style>
+        :root {
+            --bg-color: #E3E9ED;
+            --chat-bg: #FFFFFF;
+            --primary: #6C5CE7;
+            --my-bubble: #6C5CE7;
+            --bot-bubble: #F1F0F0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif; /* 영문에 어울리는 폰트 */
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .home-btn { text-decoration: none; font-size: 1.5rem; }
+        .header h2 { margin: 0; font-size: 1.1rem; color: #333; font-weight: 600; }
+
+        .mode-selector {
+            padding: 6px 10px;
+            border-radius: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            font-size: 0.85rem;
+            color: #555;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            max-width: 150px;
+        }
+        .mode-selector:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Chat Area */
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* Bubbles */
+        .message {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .bot-msg {
+            align-self: flex-start;
+            background-color: var(--bot-bubble);
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .my-msg {
+            align-self: flex-end;
+            background-color: var(--my-bubble);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        /* Loading Animation */
+        .loading-msg {
+            align-self: flex-start;
+            background-color: var(--bot-bubble);
+            border-bottom-left-radius: 5px;
+            padding: 15px 20px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .typing-indicator span {
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button:hover { transform: scale(1.1); }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #chat-box::-webkit-scrollbar { width: 6px; }
+        #chat-box::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">
+        <div class="header-left">
+            <a href="/" class="home-btn">🏠</a>
+            <h2>왓슈두 AI</h2>
+        </div>
+
+        <select id="modeSelect" class="mode-selector">
+            <option value="COUNSELOR">❤️ Empathy Coach</option>
+            <option value="TECH_LEAD">💻 Tech Lead</option>
+            <option value="LOGICAL_SOLVER">🧠 Logic Solver</option>
+            <option value="SIMPLE_EXPLAINER">👶 Simple Explainer</option>
+        </select>
+    </div>
+
+    <div id="chat-box">
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type a message..." onkeypress="if(event.keyCode==13) sendMessage()">
+        <button onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('userInput');
+    const modeSelect = document.getElementById('modeSelect');
+
+    // 1. Define Welcome Messages for each Persona
+    const personaMessages = {
+        'COUNSELOR': "Hello there. I'm here to listen to your heart. How are you feeling today? 🌿",
+        'TECH_LEAD': "Ready for code review. Show me your architecture or code snippet. Let's optimize it. 💻",
+        'LOGICAL_SOLVER': "I am online. State your problem clearly, and I will provide a logical solution. 🧠",
+        'SIMPLE_EXPLAINER': "Hi! I can explain anything simply. What are you curious about today? 🎈"
+    };
+
+    // 2. Function to set the initial welcome message
+    function setWelcomeMessage() {
+        const mode = modeSelect.value;
+        chatBox.innerHTML = ''; // Clear existing chat
+        addMessage(personaMessages[mode], 'bot-msg');
+    }
+
+    // 3. Event Listener: Change message when dropdown changes
+    modeSelect.addEventListener('change', setWelcomeMessage);
+
+    // Initialize on page load
+    window.onload = setWelcomeMessage;
+
+    // --- Core Chat Logic ---
+
+    function sendMessage() {
+        const text = userInput.value.trim();
+        const selectedMode = modeSelect.value;
+
+        if (text === "") return;
+
+        // Display user message
+        addMessage(text, 'my-msg');
+        userInput.value = '';
+
+        // Show loading animation
+        const loadingElement = showLoading();
+
+        // Send to Server
+        fetch(`/api/chat/send?mode=${selectedMode}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading and show response
+                if(loadingElement) loadingElement.remove();
+                addMessage(data.response, 'bot-msg');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if(loadingElement) loadingElement.remove();
+                addMessage("An error occurred. Please check the server connection.", 'bot-msg');
+            });
+    }
+
+    function addMessage(text, className) {
+        const div = document.createElement('div');
+        div.classList.add('message', className);
+        div.innerHTML = text;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function showLoading() {
+        const div = document.createElement('div');
+        div.classList.add('message', 'loading-msg');
+        div.innerHTML = `
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        `;
+        chatBox.appendChild(div);
+        scrollToBottom();
+        return div;
+    }
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+</body>
+</html>

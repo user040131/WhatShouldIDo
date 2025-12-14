@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>영화 선택</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #e50914;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* 그리드 레이아웃 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 80px;
+        }
+
+        /* 카드 디자인 */
+        .movie-card {
+            background: var(--card-bg);
+            border-radius: 12px; /* 둥글기 조정 */
+            /* padding 제거: 이미지를 꽉 채우기 위해 */
+            padding: 0;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+            position: relative;
+            border: 3px solid transparent;
+            height: 280px; /* 포스터 때문에 높이를 좀 늘림 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* 이미지가 튀어나가지 않게 */
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.15);
+        }
+
+        /* 포스터 영역 */
+        .poster-area {
+            width: 100%;
+            height: 80%; /* 카드의 80%는 이미지 */
+            background-color: #eee;
+            position: relative;
+        }
+
+        .poster-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 비율 유지하며 꽉 채우기 */
+        }
+
+        .poster-area i {
+            /* 이미지가 없을 때 아이콘 중앙 정렬 */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #ccc;
+        }
+
+        /* 제목 영역 */
+        .title-area {
+            height: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            background: white;
+        }
+
+        .movie-card strong {
+            font-size: 0.95rem;
+            word-break: keep-all;
+            line-height: 1.2;
+            color: #333;
+        }
+
+        /* 숨겨진 실제 체크박스 */
+        .movie-card input[type="checkbox"] {
+            display: none;
+        }
+
+        /* 선택된 상태 스타일 */
+        .movie-card.selected {
+            border-color: var(--primary-color);
+            transform: scale(0.98);
+        }
+
+        /* 선택 시 이미지 흐리게 처리 (선택 효과 강조) */
+        .movie-card.selected .poster-area img {
+            opacity: 0.7;
+        }
+
+        /* 선택 체크 아이콘 */
+        .check-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--primary-color);
+            background: white; /* 아이콘 잘 보이게 배경 추가 */
+            border-radius: 50%;
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        .movie-card.selected .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 하단 고정 버튼 */
+        .submit-area {
+            position: fixed;
+            bottom: 30px;
+            z-index: 100;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #b20710;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<h2>어떤 영화를 좋아하세요?</h2>
+<p class="subtitle">5개 이상 선택하면 취향을 분석해드려요.</p>
+
+<form action="/analyze" method="post">
+    <div class="grid">
+        <div th:each="movie : ${movies}" class="movie-card" onclick="toggleCard(this)">
+
+            <div class="poster-area">
+                <img th:if="${movie.posterUrl != null}"
+                     th:src="${movie.posterUrl}"
+                     alt="영화 포스터">
+
+                <i th:unless="${movie.posterUrl != null}" class="fas fa-video"></i>
+            </div>
+
+            <div class="title-area">
+                <strong th:text="${movie.title}">영화 제목</strong>
+            </div>
+
+            <i class="fas fa-check-circle check-icon"></i>
+
+            <input type="checkbox" name="selectedIds" th:value="${movie.id}">
+        </div>
+    </div>
+
+    <div class="submit-area">
+        <button type="submit" class="btn-submit">분석 결과 보기 <i class="fas fa-arrow-right"></i></button>
+    </div>
+</form>
+
+<script>
+    function toggleCard(card) {
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        checkbox.checked = !checkbox.checked;
+
+        if(checkbox.checked) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    }
+</script>
+</body>
+</html>

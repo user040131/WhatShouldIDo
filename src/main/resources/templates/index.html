@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Should I Do!</title>
+    <style>
+        :root {
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --primary: #6C5CE7;
+            --text-main: #2D3436;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            /* overflow: hidden; 스크롤바가 생기지 않게 하려면 주석 해제 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ▼▼▼ [추가된 스타일] 튕기는 아이콘 ▼▼▼ */
+        #bouncing-icon {
+            position: fixed; /* 화면에 고정 */
+            top: 0;
+            left: 0;
+            font-size: 5rem; /* 아이콘 크기 */
+            z-index: 0; /* 배경 뒤로 */
+            opacity: 0.2; /* 너무 시선 뺏지 않게 투명도 조절 */
+            pointer-events: none; /* 마우스 클릭 통과 (버튼 클릭 방해 X) */
+            user-select: none; /* 드래그 방지 */
+            will-change: transform; /* 성능 최적화 */
+        }
+
+        .main-container {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            position: relative; /* z-index 적용을 위해 */
+            z-index: 1; /* 아이콘보다 앞으로 나오게 설정 */
+        }
+
+        /* 타이틀 영역 */
+        .title-area {
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+        h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 0px rgba(108, 92, 231, 0.2);
+        }
+        p {
+            font-size: 1.1rem;
+            color: #636e72;
+            margin-top: 10px;
+        }
+
+        /* 그리드 메뉴 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .menu-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(108, 92, 231, 0.15);
+            border-color: var(--primary);
+        }
+
+        .icon { font-size: 3rem; margin-bottom: 15px; }
+        .card-title { font-size: 1.2rem; font-weight: 700; }
+        .card-desc { font-size: 0.9rem; color: #b2bec3; margin-top: 5px; }
+
+        .menu-card.disabled {
+            background-color: #e9ecef;
+            cursor: default;
+            opacity: 0.7;
+        }
+        .menu-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="bouncing-icon">🤔</div>
+
+<div class="main-container">
+    <div class="title-area">
+        <h1>What Should I Do!</h1>
+        <p>결정 장애 탈출을 위한 모든 것</p>
+    </div>
+
+    <div class="menu-grid">
+        <a href="/food" class="menu-card">
+            <div class="icon">🍽️</div>
+            <div class="card-title">오늘 뭐 먹지?</div>
+            <div class="card-desc">아침, 점심, 저녁, 야식</div>
+        </a>
+
+        <a href="/sphere" class="menu-card">
+            <div class="icon">🔮</div>
+            <div class="card-title">컬러 테라피</div>
+            <div class="card-desc">3D 입자로 힐링하기</div>
+        </a>
+
+        <a href="/lotto" class="menu-card">
+            <div class="icon">🎱</div>
+            <div class="card-title">로또 번호</div>
+            <div class="card-desc">인생 역전의 꿈</div>
+        </a>
+
+        <a href="/chat" class="menu-card">
+            <div class="icon">💬</div>
+            <div class="card-title">AI 연쇄공감마</div>
+            <div class="card-desc">무엇이든 얘기하고, 치유받으세요</div>
+        </a>
+
+        <a href="/select" class="menu-card">
+            <div class="icon">🎬</div>
+            <div class="card-title">영화 추천</div>
+            <div class="card-desc">오늘 볼 영화! 알려드릴게요</div>
+        </a>
+
+        <div class="menu-card disabled">
+            <div class="icon">✈️</div>
+            <div class="card-title">여행지 추천</div>
+            <div class="card-desc">떠나요 둘이서</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const icon = document.getElementById('bouncing-icon');
+
+    // 초기 위치 및 속도 설정
+    let x = Math.random() * (window.innerWidth - 100);
+    let y = Math.random() * (window.innerHeight - 100);
+    let dx = 2.5; // 가로 속도
+    let dy = 2.5; // 세로 속도
+
+    const iconSize = 80; // CSS font-size와 비슷하게 설정
+
+    function animate() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        if (x + iconSize >= width || x <= 0) {
+            dx = -dx;
+            changeIcon();
+        }
+        if (y + iconSize >= height || y <= 0) {
+            dy = -dy;
+            changeIcon();
+        }
+
+        x += dx;
+        y += dy;
+
+        icon.style.transform = `translate(${x}px, ${y}px)`;
+
+        requestAnimationFrame(animate);
+    }
+
+    const icons = ['🤔', '🤷', '🎲', '⚡', '💡'];
+    function changeIcon() {
+        // 아이콘 변경 로직 (필요시 주석 해제)
+        // const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+        // icon.innerText = randomIcon;
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+        x = Math.min(x, window.innerWidth - iconSize);
+        y = Math.min(y, window.innerHeight - iconSize);
+    });
+</script>
+
+</body>
+</html>
