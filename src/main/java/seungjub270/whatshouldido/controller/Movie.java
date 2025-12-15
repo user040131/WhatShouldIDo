@@ -47,15 +47,6 @@ public class Movie {
         return "redirect:/result";
     }
 
-    // 4. 결과 및 추천 화면
-//    @GetMapping("/result")
-//    public String result(Model model) {
-//        List<MovieVector> recommendations = recService.recommendMovies(TEMP_USER_ID);
-//        Collections.shuffle(recommendations);
-//        model.addAttribute("recommendations", recommendations);
-//        return "result";
-//    }
-
     @GetMapping("/result")
     public String showResult(Model model) {
         // 1. 추천 리스트 가져오기 (Service 호출)

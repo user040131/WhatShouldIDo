@@ -5,6 +5,7 @@
     <title>영화 선택</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -50,8 +51,7 @@
         /* 카드 디자인 */
         .movie-card {
             background: var(--card-bg);
-            border-radius: 12px; /* 둥글기 조정 */
-            /* padding 제거: 이미지를 꽉 채우기 위해 */
+            border-radius: 12px;
             padding: 0;
             text-align: center;
             cursor: pointer;
@@ -59,10 +59,10 @@
             transition: all 0.2s ease;
             position: relative;
             border: 3px solid transparent;
-            height: 280px; /* 포스터 때문에 높이를 좀 늘림 */
+            height: 280px;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 이미지가 튀어나가지 않게 */
+            overflow: hidden;
         }
 
         .movie-card:hover {
@@ -73,7 +73,7 @@
         /* 포스터 영역 */
         .poster-area {
             width: 100%;
-            height: 80%; /* 카드의 80%는 이미지 */
+            height: 80%;
             background-color: #eee;
             position: relative;
         }
@@ -81,11 +81,10 @@
         .poster-area img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 비율 유지하며 꽉 채우기 */
+            object-fit: cover;
         }
 
         .poster-area i {
-            /* 이미지가 없을 때 아이콘 중앙 정렬 */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -122,7 +121,6 @@
             transform: scale(0.98);
         }
 
-        /* 선택 시 이미지 흐리게 처리 (선택 효과 강조) */
         .movie-card.selected .poster-area img {
             opacity: 0.7;
         }
@@ -133,7 +131,7 @@
             top: 10px;
             right: 10px;
             color: var(--primary-color);
-            background: white; /* 아이콘 잘 보이게 배경 추가 */
+            background: white;
             border-radius: 50%;
             font-size: 1.5rem;
             opacity: 0;
@@ -206,6 +204,7 @@
 </form>
 
 <script>
+    // 1. 카드 클릭 시 선택 효과 함수
     function toggleCard(card) {
         const checkbox = card.querySelector('input[type="checkbox"]');
         checkbox.checked = !checkbox.checked;
@@ -216,6 +215,27 @@
             card.classList.remove('selected');
         }
     }
+
+    // 2. 페이지 로드 시 에러 파라미터 확인 및 알림창 표시
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // URL에 error=min5 가 포함되어 있다면 경고창 실행
+        if (urlParams.get('error') === 'min5') {
+            Swal.fire({
+                icon: 'warning',
+                title: '선택이 부족해요!',
+                text: '정확한 분석을 위해 영화를 최소 5개 이상 선택해주세요.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#e50914' // 버튼 색상을 메인 컬러와 일치시킴
+            });
+
+            // (선택사항) URL 뒤에 붙은 지저분한 파라미터(?error=min5) 제거
+            const url = new URL(window.location);
+            url.searchParams.delete('error');
+            window.history.replaceState({}, '', url);
+        }
+    });
 </script>
 </body>
 </html>
